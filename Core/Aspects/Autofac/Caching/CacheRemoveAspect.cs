@@ -1,4 +1,7 @@
-﻿using Castle.DynamicProxy;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Castle.DynamicProxy;
 using Core.CrossCuttingcConcerns.Caching;
 using Core.Utilities.Interceptors;
 using Core.Utilities.IoC;
@@ -17,7 +20,7 @@ namespace Core.Aspects.Autofac.Caching
             _cacheManager = ServiceTool.ServiceProvider.GetService<ICacheManager>();
         }
 
-        protected override void OnSuccess(IInvocation invocation)//method başarılı olursu cacheden sil
+        protected override void OnSuccess(IInvocation invocation)
         {
             _cacheManager.RemoveByPattern(_pattern);
         }

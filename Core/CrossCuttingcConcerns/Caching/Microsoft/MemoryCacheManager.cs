@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace Core.CrossCuttingcConcerns.Caching.Microsoft
 {
@@ -45,13 +46,17 @@ namespace Core.CrossCuttingcConcerns.Caching.Microsoft
             _memoryCache.Remove(key);
         }
 
-        public void RemoveByPattern(string pattern)
+         public void RemoveByPattern(string pattern)
         {
-            var cacheEntriesCollectionDefinition = typeof(MemoryCache).GetProperty("EntriesCollection", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var cacheEntriesCollection = cacheEntriesCollectionDefinition.GetValue(_memoryCache) as dynamic;
+            var fieldInfo = typeof(MemoryCache).GetField("_coherentState", BindingFlags.Instance | BindingFlags.NonPublic);
+            var propertyInfo = fieldInfo.FieldType.GetProperty("EntriesCollection", BindingFlags.Instance | BindingFlags.NonPublic);
+            var value = fieldInfo.GetValue(_memoryCache);
+            var dict = propertyInfo.GetValue(value) as dynamic;
+
+
             List<ICacheEntry> cacheCollectionValues = new List<ICacheEntry>();
 
-            foreach (var cacheItem in cacheEntriesCollection)
+            foreach (var cacheItem in dict)
             {
                 ICacheEntry cacheItemValue = cacheItem.GetType().GetProperty("Value").GetValue(cacheItem, null);
                 cacheCollectionValues.Add(cacheItemValue);

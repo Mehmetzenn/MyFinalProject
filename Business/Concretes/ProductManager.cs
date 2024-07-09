@@ -32,9 +32,9 @@ namespace Business.Concretes
             _categoryService = categoryService;
         }
 
-        [SecuredOperation("product.add,admin")]
-        [CacheRemoveAspect("ProductService.Get")]  
+        //[SecuredOperation("product.add,admin")] 
         [ValidationAspect(typeof(ProductValidator))]
+        [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
             IResult result = BusinessRules.Run(CheckIfProductNameExists(product.ProductName));
@@ -46,14 +46,14 @@ namespace Business.Concretes
             _productDal.Add(product);
             return new SuccessResult(Messages.ProductAdded);                
         }
-
+        
         public IResult Delete(Product product)
         {
             _productDal.Delete(product);
             return new SuccessResult();
         }
 
-        [CacheAspect] //key,value
+        [CacheAspect]  //key,value
         public IDataResult<List<Product>> GetAll()
         {
             if (DateTime.Now.Hour == 12)
@@ -74,8 +74,8 @@ namespace Business.Concretes
         }
 
         
+        [PerformanceAspect(5)]
         [CacheAspect]
-        [PerformanceAspect(5)]  
         public IDataResult<Product> GetById(int id)
         {
             return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == id));
@@ -89,7 +89,6 @@ namespace Business.Concretes
 
 
         [ValidationAspect(typeof(ProductValidator))]
-        [CacheRemoveAspect("ProductService.Get")]  
         //bellekteki içerisinde get olan tüm verileri siler
         public IResult Update(Product product)
         {
