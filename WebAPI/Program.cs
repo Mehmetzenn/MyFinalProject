@@ -30,6 +30,7 @@ namespace WebAPI
                 // Add services to the container.
 
                 builder.Services.AddControllers();
+                builder.Services.AddCors();
 
                 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -68,12 +69,15 @@ namespace WebAPI
                     app.UseSwagger();
                     app.UseSwaggerUI();
                 }
+                app.ConfigureCustomExceptionMiddleware();
+
+                app.UseCors(builder=>builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
+                
                 app.UseAuthorization();
     
                 app.UseHttpsRedirection();
             
                 app.UseAuthentication();
-
 
                 app.MapControllers();   
 
